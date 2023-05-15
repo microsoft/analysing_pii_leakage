@@ -1,0 +1,20 @@
+# Infer PII from an LM
+
+dataset_args:
+  dataset_path: ../src/extern/echr
+  dataset_mode: undefended
+  sample_duplication_rate: 1
+
+attack_args:
+  attack_name: perplexity_inference
+
+model_args:
+  architecture: gpt2
+  pre_trained: True
+  model_ckpt: /home/nlukas/echr2_nodp # Edit this path to try your own model.
+
+ner_args:
+  ner: flair
+  ner_model: flair/ner-english-ontonotes-large
+  anon_token: <MASK>
+  anonymize: False
