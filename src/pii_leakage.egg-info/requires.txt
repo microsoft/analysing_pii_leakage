@@ -1,0 +1,6 @@
+torch<2.0,>=1.10
+transformers
+tqdm
+flair@ git+https://github.com/flairNLP/flair
+dp_transformers@ git+https://github.com/microsoft/dp-transformers.git@main#egg=dp_transformers
+opacus

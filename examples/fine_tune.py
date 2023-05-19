@@ -1,21 +1,23 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 from pprint import pprint
 
 import transformers
 
-from src.arguments.config_args import ConfigArgs
-from src.arguments.dataset_args import DatasetArgs
-from src.arguments.env_args import EnvArgs
-from src.arguments.model_args import ModelArgs
-from src.arguments.ner_args import NERArgs
-from src.arguments.outdir_args import OutdirArgs
-from src.arguments.privacy_args import PrivacyArgs
-from src.arguments.sampling_args import SamplingArgs
-from src.arguments.trainer_args import TrainerArgs
-from src.dataset.real_dataset import RealDataset
-from src.models.language_model import LanguageModel
-from src.models.model_factory import ModelFactory
-from src.dataset.dataset_factory import DatasetFactory
-from src.utils.output import print_highlighted, print_dict_highlighted
+from pii_leakage.arguments.config_args import ConfigArgs
+from pii_leakage.arguments.dataset_args import DatasetArgs
+from pii_leakage.arguments.env_args import EnvArgs
+from pii_leakage.arguments.model_args import ModelArgs
+from pii_leakage.arguments.ner_args import NERArgs
+from pii_leakage.arguments.outdir_args import OutdirArgs
+from pii_leakage.arguments.privacy_args import PrivacyArgs
+from pii_leakage.arguments.sampling_args import SamplingArgs
+from pii_leakage.arguments.trainer_args import TrainerArgs
+from pii_leakage.dataset.real_dataset import RealDataset
+from pii_leakage.models.language_model import LanguageModel
+from pii_leakage.models.model_factory import ModelFactory
+from pii_leakage.dataset.dataset_factory import DatasetFactory
+from pii_leakage.utils.output import print_highlighted, print_dict_highlighted
 
 
 def parse_args():

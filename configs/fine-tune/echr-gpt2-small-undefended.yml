@@ -1,7 +1,7 @@
 # Fine-tune an LM on the enron text dataset.
 
 dataset_args:
-  dataset_path: ../src/extern/echr
+  dataset_path: ../src/pii_leakage/extern/echr
   dataset_mode: undefended
   sample_duplication_rate: 1
 

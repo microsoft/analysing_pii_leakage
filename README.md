@@ -1,9 +1,8 @@
-
 ## Analyzing Leakage of Personally Identifiable Information in Language Models
 
 <p>
     <a href="https://www.python.org/downloads/">
-            <img alt="Build" src="https://img.shields.io/badge/3.10-Python-orange">
+            <img alt="Build" src="https://img.shields.io/badge/3.10-Python-blue">
     </a>
     <a href="https://pytorch.org">
             <img alt="Build" src="https://img.shields.io/badge/1.11-PyTorch-orange">
@@ -11,10 +10,14 @@
     <a href="https://github.com/pytorch/opacus">
             <img alt="Build" src="https://img.shields.io/badge/1.12-opacus-orange">
     </a>
+    
+
 </p>
 
-Official implementation of the following paper to appear at the
-IEEE Symposium on Security and Privacy (S&P '23).
+This repository contains the official code for our IEEE S&P 2023 paper using GPT-2 language models and
+Flair Named Entity Recognition (NER) models. 
+It allows fine-tuning (i) undefended, (ii) differentially-private and (iii) scrubbed language models 
+on ECHR and Enron and attacking them using the attacks presented in our paper. 
 
 
 ## Publication
@@ -25,12 +28,13 @@ IEEE Symposium on Security and Privacy (S&P '23).
 > [![arXiv](https://img.shields.io/badge/arXiv-2302.00539-green)](https://arxiv.org/abs/2302.00539)
 
 
+
 ## Build & Run
 We recommend setting up a conda environment for this project. 
 ```shell
 $ conda create -n pii-leakage python=3.10
 $ conda activate pii-leakage
-$ pip install -r requirements.txt
+$ pip install -e .
 ```
 
 ## Usage 
@@ -38,11 +42,10 @@ $ pip install -r requirements.txt
 We explain the following functions. The scripts are in the ```./examples``` folder and
 run configurations are in the ```./configs``` folder.  
 * **Fine-Tune**: Fine-tune a pre-trained LM on a dataset (optionally with DP or scrubbing). 
-* **PII Extraction**: Given a pre-trained LM, return a set of PII.
+* **PII Extraction**: Given a fine-tuned LM, return a set of PII.
 
-* **PII Reconstruction**: Given a pre-trained LM and a masked sentence, reconstruct the most likely PII candidate for the masked tokens.
-* **PII Inference**: Given a pre-trained LM, a masked sentence and a set of PII candidates, choose the most likely candidate.
-* **Membership Inference**: Given a pre-trained LM and a set of sentences, determine whether a sentence was part of its training data.
+* **PII Reconstruction**: Given a fine-tuned LM and a masked sentence, reconstruct the most likely PII candidate for the masked tokens.
+* **PII Inference**: Given a fine-tuned LM, a masked sentence and a set of PII candidates, choose the most likely candidate.
 
 
 ## Fine-Tuning
@@ -51,47 +54,64 @@ We demonstrate how to fine-tune a ```GPT-2 small``` ([Huggingface](https://huggi
 
 **No Defense**
 ```shell
-$ python examples/fine-tune.py --config_file ../configs/fine-tune/echr-gpt2-small-undefended.yml
+$ python fine_tune.py --config_path ../configs/fine-tune/echr-gpt2-small-undefended.yml
 ```
 **With Scrubbing**
 
 _Note_: All PII will be scrubbed from the dataset. Scrubbing is a one-time operation that requires tagging all PII in the dataset first
 which can take many hours depending on your setup. We do not provide tagged datasets. 
 ```
-$ python examples/fine-tune.py --config_file ../configs/fine-tune/echr-gpt2-small-scrubbed.yml
+$ python fine_tune.py --config_path ../configs/fine-tune/echr-gpt2-small-scrubbed.yml
 ```
 **With DP (ε=8.0)**
 
 _Note_: We use the [dp-transformers](https://github.com/microsoft/dp-transformers) wrapper around PyTorch's [opacus](https://github.com/pytorch/opacus) library. 
  ```
-$ python examples/fine-tune.py --config_file ../configs/fine-tune/echr-gpt2-small-dp8.yml
+$ python fine_tune.py --config_path ../configs/fine-tune/echr-gpt2-small-dp8.yml
 ```
 
 ## Attacks 
-Assuming your pre-trained model is located at ```~/echr_undefended``` you can edit the model_ckpt
-in the ```../configs/<ATTACK>/echr-gpt2-small-undefended.yml``` file and run the following attacks.
+Assuming your fine-tuned model is located at ```../echr_undefended``` run the following attacks.
+Otherwise, you can edit the ```model_ckpt``` attribute in the ```../configs/<ATTACK>/echr-gpt2-small-undefended.yml``` file to point to the location of the model. 
 
 **PII Extraction**
 
+This will extract PII from the model's generated text.
 ```shell
-$ python examples/attack.py --config_file ../configs/pii-extraction/echr-gpt2-small-undefended.yml
+$ python extract_pii.py --config_path ../configs/pii-extraction/echr-gpt2-small-undefended.yml
 ``` 
 **PII Reconstruction**
 
+This will reconstruct PII from the model given a target sequence.
 ```shell
-$ python examples/attack.py --config_file ../configs/pii-reconstruction/echr-gpt2-small-undefended.yml
+$ python reconstruct_pii.py --config_path ../configs/pii-reconstruction/echr-gpt2-small-undefended.yml
 ``` 
 **PII Inference**
 
+This will infer PII from the model given a target sequence and a set of PII candidates.
 ```shell
-$ python examples/attack.py --config_file ../configs/pii-inference/echr-gpt2-small-undefended.yml
+$ python reconstruct_pii.py --config_path ../configs/pii-inference/echr-gpt2-small-undefended.yml
 ``` 
 
-## Metrics
+## Evaluation
 
-To reproduce the Figures in our paper, please run the following command (this may take a while).
+Use the ```evaluate.py``` script to evaluate our privacy attacks against the LM. 
+```shell
+$ python evaluate.py --config_path ../configs/evaluate/pii-extraction.yml
+``` 
+This will compute the precision/recall for PII extraction and accuracy for PII reconstruction/inference attacks. 
 
-**ToDo**
+## Datasets
+
+The provided ECHR dataset wrapper already tags all PII in the dataset.
+The PII tagging is done using the Flair NER modules and can take several hours depending on your setup, but is a one-time operation
+that will be cached in subsequent runs. 
+
+## Fine-Tuned Models
+
+Unfortunately, we do not provide fine-tuned model checkpoints.
+This repository does support loading models remotely, which can be done by providing a URL instead of a local path 
+in the configuration files for the ```model_ckpt``` attribute.
 
 ## Bibtex
 Please consider citing the following papers if you found our work useful.  

@@ -1,17 +1,19 @@
 # Extract PII from an LM
 
 dataset_args:
-  dataset_path: ../src/extern/echr
+  dataset_path: ../src/pii_leakage/extern/echr
   dataset_mode: undefended
   sample_duplication_rate: 1
 
 attack_args:
   attack_name: naive_extraction
+  sampling_rate: 100
+  seq_len: 128
 
 model_args:
   architecture: gpt2
   pre_trained: True
-  model_ckpt: /home/nlukas/echr2_nodp # Edit this path to try your own model.
+  model_ckpt: ../echr2_undefended # Edit this path to try your own model.
 
 ner_args:
   ner: flair

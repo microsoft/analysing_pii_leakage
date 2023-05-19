@@ -1,31 +1,23 @@
-from pprint import pprint
-
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 import transformers
 
-from src.arguments.attack_args import AttackArgs
-from src.arguments.config_args import ConfigArgs
-from src.arguments.dataset_args import DatasetArgs
-from src.arguments.env_args import EnvArgs
-from src.arguments.model_args import ModelArgs
-from src.arguments.ner_args import NERArgs
-from src.arguments.outdir_args import OutdirArgs
-from src.arguments.privacy_args import PrivacyArgs
-from src.arguments.sampling_args import SamplingArgs
-from src.arguments.trainer_args import TrainerArgs
-from src.attacks.attack_factory import AttackFactory
-from src.attacks.extraction.naive_extraction import NaiveExtractionAttack
-from src.dataset.real_dataset import RealDataset
-from src.models.language_model import LanguageModel
-from src.models.model_factory import ModelFactory
-from src.dataset.dataset_factory import DatasetFactory
-from src.utils.output import print_highlighted
+from pii_leakage.arguments.attack_args import AttackArgs
+from pii_leakage.arguments.config_args import ConfigArgs
+from pii_leakage.arguments.env_args import EnvArgs
+from pii_leakage.arguments.model_args import ModelArgs
+from pii_leakage.arguments.ner_args import NERArgs
+from pii_leakage.attacks.attack_factory import AttackFactory
+from pii_leakage.attacks.extraction.naive_extraction import NaiveExtractionAttack
+from pii_leakage.models.language_model import LanguageModel
+from pii_leakage.models.model_factory import ModelFactory
+from pii_leakage.utils.output import print_separator, bcolors, print_dict_highlighted
 
 
 def parse_args():
-    parser = transformers.HfArgumentParser((ModelArgs,    # used to load the model
-                                            NERArgs,      # used to load the named entity recognizer
-                                            DatasetArgs,  # used to load the datasets
-                                            AttackArgs,   # used to load the attack
+    parser = transformers.HfArgumentParser((ModelArgs,
+                                            NERArgs,
+                                            AttackArgs,
                                             EnvArgs,
                                             ConfigArgs))
     return parser.parse_args_into_dataclasses()
@@ -33,25 +25,27 @@ def parse_args():
 
 def extract_pii(model_args: ModelArgs,
                 ner_args: NERArgs,
-                dataset_args: DatasetArgs,
                 attack_args: AttackArgs,
                 env_args: EnvArgs,
                 config_args: ConfigArgs):
     """ Generate text using an LM and extract all PII.
+
+    Used for demonstration purposes.
     """
     if config_args.exists():
         model_args = config_args.get_model_args()
         ner_args = config_args.get_ner_args()
-        dataset_args = config_args.get_dataset_args()
         env_args = config_args.get_env_args()
 
-    # -- Load the LM
+    print_dict_highlighted(vars(attack_args))
     lm: LanguageModel = ModelFactory.from_model_args(model_args, env_args=env_args).load(verbose=True)
-    lm.print_sample("On 8 May 2003")
 
     attack: NaiveExtractionAttack = AttackFactory.from_attack_args(attack_args, ner_args=ner_args, env_args=env_args)
-    attack.attack(lm, verbose=True)
+    results: dict = attack.attack(lm, verbose=True)
 
+    print_separator()
+    print(f"{bcolors.OKBLUE}Best Guess:{bcolors.ENDC} {results}")
+    print_separator()
 
 # ----------------------------------------------------------------------------
 if __name__ == "__main__":

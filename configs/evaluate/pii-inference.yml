@@ -1,12 +1,16 @@
-# Reconstruct PII from an LM
+# Evaluate PII Inference
 dataset_args:
   dataset_path: ../src/pii_leakage/extern/echr
   dataset_mode: undefended
   sample_duplication_rate: 1
 
 attack_args:
-  attack_name: perplexity_reconstruction
-  target_sequence: "Four police officers were killed in the clash by <T-MASK> with a dark red car."
+  attack_name: perplexity_inference
+  sampling_rate: 100
+  seq_len: 128
+
+eval_args:
+  num_candidates: 500
 
 model_args:
   architecture: gpt2
@@ -18,3 +22,4 @@ ner_args:
   ner_model: flair/ner-english-ontonotes-large
   anon_token: <MASK>
   anonymize: False
+  tag_n_batches: 10_000
