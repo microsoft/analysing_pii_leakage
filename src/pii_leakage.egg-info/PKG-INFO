@@ -1,8 +1,0 @@
-Metadata-Version: 2.1
-Name: pii-leakage
-Version: 0.1.0
-Summary: Analyzing PII leakage in LMs
-Home-page: https://github.com/microsoft/analysing_pii_leakage
-Author: Nils Lukas
-Author-email: nlukas@uwaterloo.ca
-License: MIT License
