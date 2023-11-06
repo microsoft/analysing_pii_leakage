@@ -33,7 +33,7 @@ class CustomECHR(datasets.GeneratorBasedBuilder):
         CustomECHRBuilder(name="scrubbed", sample_duplication_rate=1, version=VERSION,
                           description="PII replaced with anon token")
     ]
-    DEFAULT_CONFIG_NAME = "unprotected"
+    DEFAULT_CONFIG_NAME = "undefended"
 
     def __init__(self, *args, **kwargs):
         self.df: pd.DataFrame = pd.DataFrame()
