@@ -35,16 +35,16 @@ class NaiveExtractionAttack(ExtractionAttack):
 
         # Analyzing the generated text with the tagger to extract entities.
         tagger: Tagger = self._get_tagger()
-        entities = tagger.analyze(str(generated_text))
+        entities = tagger.analyze([str(x) for x in generated_text])
 
-        # Filter out the entities that are classified as persons.
+        # Filter out the entities that are classified as the target entity class.
         pii = entities.get_by_entity_class(self.attack_args.pii_class)
 
-        # Extracting the text of the person entities.
+        # Extracting the text of the entities.
         pii_mentions = [p.text for p in pii]
 
-        # Counting the occurrence of each person's mention.
+        # Counting the occurrence of each entity mention.
         result = {p: pii_mentions.count(p) for p in set(pii_mentions)}
 
-        # Sorting the result dictionary based on the count of each person's mention in descending order and returning it.
+        # Sorting the result dictionary based on the count of each entity mentions in descending order and returning it.
         return {k: v for k, v in sorted(result.items(), key=lambda item: item[1], reverse=True)}

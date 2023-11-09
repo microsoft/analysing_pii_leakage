@@ -65,22 +65,25 @@ def evaluate(model_args: ModelArgs,
 
     train_dataset = DatasetFactory.from_dataset_args(dataset_args=dataset_args.set_split('train'), ner_args=ner_args)
     real_pii: ListPII = train_dataset.load_pii().flatten(attack_args.pii_class)
-    print(f"(Example) 20 Real PII: {real_pii.unique().mentions()[:20]}")
+    print(f"Sample 20 real PII out of {len(real_pii.unique().mentions())}: {real_pii.unique().mentions()[:20]}")
 
     attack: PrivacyAttack = AttackFactory.from_attack_args(attack_args, ner_args=ner_args, env_args=env_args)
     if isinstance(attack, ExtractionAttack):
         # Compute Precision/Recall for the extraction attack.
-        generated_pii: dict = attack.attack(lm)  # PII -> count
-        generated_baseline_pii: dict = attack.attack(baseline_lm)
+        generated_pii = set(attack.attack(lm).keys())
+        baseline_pii = set(attack.attack(baseline_lm).keys())
+        real_pii_set = set(real_pii.unique().mentions())
 
         # Remove baseline leakage
-        leaked_piis = {}
-        for pii in generated_pii:
-            if pii not in generated_baseline_pii:
-                leaked_piis[pii] = generated_pii[pii]
+        leaked_pii = generated_pii.difference(baseline_pii)
 
-        print(f"Precision: {100 * len(intersection(real_pii, leaked_piis)) / len(leaked_piis)}")
-        print(f"Recall: {100 * len(intersection(real_pii, leaked_piis)) / len(real_pii):.2f}%")
+        print(f"Generated: {len(generated_pii)}")
+        print(f"Baseline:  {len(baseline_pii)}")
+        print(f"Leaked:    {len(leaked_pii)}")
+
+        print(f"Precision: {100 * len(real_pii_set.intersection(leaked_pii)) / len(leaked_pii):.2f}%")
+        print(f"Recall:    {100 * len(real_pii_set.intersection(leaked_pii)) / len(real_pii):.2f}%")
+
     elif isinstance(attack, ReconstructionAttack):
         # Compute accuracy for the reconstruction/inference attack.
         idx = random.sample(range(len(train_dataset)), len(train_dataset))
