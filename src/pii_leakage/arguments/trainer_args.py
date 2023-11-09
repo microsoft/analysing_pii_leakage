@@ -74,6 +74,22 @@ class TrainerArgs(TrainingArguments):
         }
     )
 
+    remove_unused_columns: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to remove unused columns."
+        }
+    )
+
+    # Since transformers>=4.35.0 this defaults to True
+    # Opacus GradSampleModule is not compatible with this
+    save_safetensors: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to save safetensors."
+        }
+    )
+
     output_dir: str = field(
         default="",
         metadata={
