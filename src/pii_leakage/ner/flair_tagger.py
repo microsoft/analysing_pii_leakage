@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import flair
 import torch
@@ -42,24 +42,31 @@ class FlairTagger(Tagger):
         """ get taggable entities """
         return list(self.ENTITY_CLASSES.keys())
 
-    def analyze(self, text: str) -> ListPII:
-        """ Analyze a string for PII. """
-        sentence = Sentence(text)
-        sentence.to(self.env_args.device)
+    def analyze(self, text: Union[List[str], str]) -> ListPII:
+        """ Analyze a string or list of strings for PII. """
+
+        if isinstance(text, list):
+            sentences = [Sentence(x) for x in text]
+            verbose = True
+        else:
+            sentences = [Sentence(text)]
+            verbose = False
+
+        self.base_tagger.predict(sentences,
+                                 verbose=verbose,
+                                 mini_batch_size=self.env_args.eval_batch_size)
 
         result_list: List[PII] = []
-        try:
-            self.base_tagger.predict(sentence)
+
+        for sentence in sentences:
             for entity in sentence.get_spans('ner'):
                 for entity_class in self.get_entity_classes():
                     if any([x.to_dict()['value'] == entity_class for x in entity.get_labels()]):
                         result_list += [PII(entity_class=entity_class, start=entity.start_position,
                                             text=entity.text, end=entity.end_position,
                                             score=entity.score)]
-        except Exception as e:
-            print(f"Error for sentence: .. {e}")  # ignore faulty sentences.
-        finally:
-            return ListPII(data=result_list)
+
+        return ListPII(data=result_list)
 
     def pseudonymize(self, text: str) -> Tuple[str, ListPII]:
         """ Pseudonymizes a string if the ner_args.anonymize flag is True. """

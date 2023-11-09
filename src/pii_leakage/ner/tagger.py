@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 from abc import abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from ..arguments.env_args import EnvArgs
 from ..arguments.ner_args import NERArgs
@@ -22,7 +22,7 @@ class Tagger:
         raise NotImplementedError
 
     @abstractmethod
-    def analyze(self, text: str) -> ListPII:
+    def analyze(self, text: Union[List[str], str]) -> ListPII:
         """ Analyze the text for entities. """
         raise NotImplementedError
 
