@@ -13,7 +13,7 @@ attack_args:
 model_args:
   architecture: gpt2
   pre_trained: True
-  model_ckpt: ../echr2_undefended # Edit this path to try your own model.
+  model_ckpt: ../echr_undefended # Edit this path to try your own model.
 
 ner_args:
   ner: flair
